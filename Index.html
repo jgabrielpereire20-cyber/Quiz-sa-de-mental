@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quiz - Escala de Glasgow</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eef3f9;
+    color: #183153;
+    padding: 20px;
+}
+
+.container {
+    max-width: 750px;
+    margin: 30px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.10);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+header h1 {
+    color: #103d75;
+    font-size: 27px;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #63758b;
+    line-height: 1.5;
+}
+
+.info {
+    background: #eaf2ff;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.progress-container {
+    background: #dce5ef;
+    height: 10px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    width: 0%;
+    background: #1672c4;
+    transition: 0.3s;
+}
+
+#question-number {
+    color: #1672c4;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+#question {
+    font-size: 21px;
+    line-height: 1.4;
+    margin-bottom: 22px;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.option {
+    background: #f4f7fb;
+    border: 2px solid #dce5ef;
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.option:hover:not(:disabled) {
+    background: #e5efff;
+    border-color: #1672c4;
+}
+
+.option:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.option.correct {
+    background: #d9f7e5;
+    border-color: #229653;
+    color: #176c39;
+}
+
+.option.wrong {
+    background: #ffe2e2;
+    border-color: #dc4545;
+    color: #a52626;
+}
+
+.feedback {
+    display: none;
+    padding: 17px;
+    margin-top: 20px;
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+.feedback.show {
+    display: block;
+}
+
+.feedback.good {
+    background: #e0f7e9;
+    border-left: 5px solid #229653;
+}
+
+.feedback.bad {
+    background: #fff0e0;
+    border-left: 5px solid #e69a28;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+    gap: 10px;
+}
+
+button.action {
+    background: #125da5;
+    color: white;
+    border: none;
+    padding: 13px 22px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button.action:hover {
+    background: #0c477e;
+}
+
+button.action:disabled {
+    background: #aab7c5;
+    cursor: not-allowed;
+}
+
+#result {
+    display: none;
+    text-align: center;
+}
+
+#result h2 {
+    color: #125da5;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.score {
+    font-size: 45px;
+    font-weight: bold;
+    color: #16864a;
+    margin: 20px;
+}
+
+.result-message {
+    background: #eaf2ff;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    color: #8492a6;
+    font-size: 12px;
+    margin-top: 30px;
+}
+
+@media(max-width: 500px) {
+    .container {
+        padding: 20px;
+        margin: 10px auto;
+    }
+
+    header h1 {
+        font-size: 23px;
+    }
+
+    #question {
+        font-size: 18px;
+    }
+
+    .option {
+        font-size: 14px;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+    button.action {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <h1>🧠 Escala de Glasgow</h1>
+    <p>Teste seus conhecimentos sobre a avaliação do nível de consciência.</p>
+</header>
+
+<div class="info">
+    📚 Quiz de aprendizagem | 20 perguntas
+</div>
+
+<div id="quiz">
+
+    <div class="progress-container">
+        <div class="progress" id="progress"></div>
+    </div>
+
+    <p id="question-number"></p>
+
+    <h2 id="question"></h2>
+
+    <div class="options" id="options"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="buttons">
+        <button class="action" id="next" disabled onclick="nextQuestion()">
+            Próxima pergunta →
+        </button>
+    </div>
+
+</div>
+
+<div id="result">
+
+    <h2>🎉 Quiz concluído!</h2>
+
+    <p>Sua pontuação final foi:</p>
+
+    <div class="score" id="score"></div>
+
+    <div class="result-message" id="message"></div>
+
+    <button class="action" onclick="restartQuiz()">
+        ↻ Refazer o quiz
+    </button>
+
+</div>
+
+<footer>
+    Material educativo sobre a Escala de Coma de Glasgow.
+</footer>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+q: "1. Qual é a principal finalidade da Escala de Coma de Glasgow?",
+a: [
+"Medir a pressão arterial do paciente.",
+"Avaliar o nível de consciência do paciente.",
+"Identificar a temperatura corporal.",
+"Avaliar exclusivamente a frequência cardíaca."
+],
+correct: 1,
+explanation: "A Escala de Glasgow avalia o nível de consciência por meio das respostas ocular, verbal e motora."
+},
+
+{
+q: "2. Quantos componentes são avaliados na Escala de Glasgow?",
+a: [
+"Dois componentes.",
+"Quatro componentes.",
+"Três componentes.",
+"Cinco componentes."
+],
+correct: 2,
+explanation: "São três componentes: abertura ocular (AO), resposta verbal (RV) e resposta motora (RM)."
+},
+
+{
+q: "3. Qual é a pontuação máxima da Escala de Glasgow apresentada na imagem?",
+a: [
+"10 pontos.",
+"12 pontos.",
+"14 pontos.",
+"15 pontos."
+],
+correct: 3,
+explanation: "A pontuação máxima é 15 pontos, representando a melhor resposta nos três componentes."
+},
+
+{
+q: "4. Qual é a pontuação mínima possível na Escala de Glasgow?",
+a: [
+"1 ponto.",
+"2 pontos.",
+"3 pontos.",
+"5 pontos."
+],
+correct: 2,
+explanation: "A pontuação mínima é 3 pontos: 1 na abertura ocular, 1 na resposta verbal e 1 na resposta motora."
+},
+
+{
+q: "5. Na abertura ocular, quantos pontos são atribuídos quando o paciente abre os olhos espontaneamente?",
+a: [
+"2 pontos.",
+"3 pontos.",
+"4 pontos.",
+"5 pontos."
+],
+correct: 2,
+explanation: "A abertura ocular espontânea recebe 4 pontos, sendo a maior pontuação desse componente."
+},
+
+{
+q: "6. Quando o paciente abre os olhos somente após ser chamado, qual é a pontuação?",
+a: [
+"1 ponto.",
+"2 pontos.",
+"3 pontos.",
+"4 pontos."
+],
+correct: 2,
+explanation: "Abrir os olhos em resposta à voz corresponde a 3 pontos na abertura ocular."
+},
+
+{
+q: "7. Quando o paciente abre os olhos apenas após um estímulo doloroso, qual é a pontuação?",
+a: [
+"2 pontos.",
+"3 pontos.",
+"4 pontos.",
+"5 pontos."
+],
+correct: 0,
+explanation: "A abertura ocular ao estímulo doloroso corresponde a 2 pontos."
+},
+
+{
+q: "8. O que significa receber 1 ponto na abertura ocular?",
+a: [
+"Abre os olhos espontaneamente.",
+"Abre os olhos quando chamado.",
+"Abre os olhos após estímulo doloroso.",
+"Não apresenta abertura ocular."
+],
+correct: 3,
+explanation: "A pontuação 1 significa que não há abertura ocular."
+},
+
+{
+q: "9. Na resposta verbal, qual é a pontuação máxima?",
+a: [
+"3 pontos.",
+"4 pontos.",
+"5 pontos.",
+"6 pontos."
+],
+correct: 2,
+explanation: "A resposta verbal pode atingir até 5 pontos, quando o paciente está orientado."
+},
+
+{
+q: "10. O que caracteriza uma resposta verbal orientada?",
+a: [
+"O paciente conversa normalmente e está orientado no tempo, lugar e pessoa.",
+"O paciente emite apenas sons incompreensíveis.",
+"O paciente apresenta palavras soltas sem sentido.",
+"O paciente não emite nenhuma resposta verbal."
+],
+correct: 0,
+explanation: "A resposta orientada recebe 5 pontos e representa uma comunicação adequada, com orientação no tempo, lugar e pessoa."
+},
+
+{
+q: "11. Quando o paciente conversa, mas apresenta desorientação, qual é a pontuação verbal?",
+a: [
+"2 pontos.",
+"3 pontos.",
+"4 pontos.",
+"5 pontos."
+],
+correct: 2,
+explanation: "A resposta verbal confusa recebe 4 pontos."
+},
+
+{
+q: "12. O que representa a resposta verbal de 3 pontos?",
+a: [
+"Conversa normalmente.",
+"Apresenta palavras inapropriadas.",
+"Emite sons incompreensíveis.",
+"Não emite sons."
+],
+correct: 1,
+explanation: "Palavras inapropriadas, soltas e sem sentido correspondem a 3 pontos."
+},
+
+{
+q: "13. Quando o paciente emite sons ou gemidos sem conseguir formar palavras compreensíveis, qual é a pontuação?",
+a: [
+"1 ponto.",
+"2 pontos.",
+"3 pontos.",
+"4 pontos."
+],
+correct: 1,
+explanation: "Sons incompreensíveis recebem 2 pontos na resposta verbal."
+},
+
+{
+q: "14. Na resposta verbal, o que significa receber 1 ponto?",
+a: [
+"Fala palavras inapropriadas.",
+"Conversa com confusão.",
+"Emite sons incompreensíveis.",
+"Não emite sons."
+],
+correct: 3,
+explanation: "A pontuação 1 significa ausência de resposta verbal."
+},
+
+{
+q: "15. Qual é a pontuação máxima da resposta motora?",
+a: [
+"3 pontos.",
+"4 pontos.",
+"5 pontos.",
+"6 pontos."
+],
+correct: 3,
+explanation: "A resposta motora recebe até 6 pontos, quando o paciente obedece a comandos."
+},
+
+{
+q: "16. O que significa obedecer a comandos na resposta motora?",
+a: [
+"O paciente realiza movimentos a partir de ordens.",
+"O paciente não apresenta movimentos.",
+"O paciente apenas emite sons.",
+"O paciente apresenta flexão anormal."
+],
+correct: 0,
+explanation: "Obedecer a comandos recebe 6 pontos, pois o paciente consegue realizar movimentos solicitados."
+},
+
+{
+q: "17. Qual é a diferença entre localizar a dor e o movimento de retirada?",
+a: [
+"São respostas exatamente iguais.",
+"Localizar a dor envolve mover-se para localizar ou afastar o estímulo; retirada é afastar o membro.",
+"Localizar a dor recebe menos pontos que a retirada.",
+"Ambas representam ausência de movimento."
+],
+correct: 1,
+explanation: "Localizar a dor recebe 5 pontos, enquanto o movimento de retirada recebe 4 pontos."
+},
+
+{
+q: "18. Qual pontuação representa a flexão anormal (decorticação)?",
+a: [
+"2 pontos.",
+"3 pontos.",
+"4 pontos.",
+"5 pontos."
+],
+correct: 1,
+explanation: "A flexão anormal recebe 3 pontos na resposta motora."
+},
+
+{
+q: "19. De acordo com a tabela da imagem, qual classificação corresponde a 9–12 pontos?",
+a: [
+"Normal.",
+"Disfunção leve.",
+"Disfunção moderada.",
+"Disfunção grave."
+],
+correct: 2,
+explanation: "A faixa de 9 a 12 pontos é classificada como disfunção moderada na tabela apresentada."
+},
+
+{
+q: "20. Segundo a tabela da imagem, qual classificação corresponde a uma pontuação de 3 a 8 pontos?",
+a: [
+"Normal.",
+"Disfunção leve.",
+"Disfunção moderada.",
+"Disfunção grave."
+],
+correct: 3,
+explanation: "A faixa de 3 a 8 pontos corresponde à disfunção grave na tabela apresentada."
+}
+
+];
+
+let current = 0;
+let points = 0;
+let answered = false;
+
+function loadQuestion() {
+
+    answered = false;
+
+    const q = questions[current];
+
+    document.getElementById("question-number").innerText =
+        "Pergunta " + (current + 1) + " de " + questions.length;
+
+    document.getElementById("question").innerText = q.q;
+
+    document.getElementById("progress").style.width =
+        ((current / questions.length) * 100) + "%";
+
+    document.getElementById("feedback").className = "feedback";
+    document.getElementById("feedback").innerHTML = "";
+
+    document.getElementById("next").disabled = true;
+
+    const options = document.getElementById("options");
+
+    options.innerHTML = "";
+
+    q.a.forEach((answer, index) => {
+
+        const button = document.createElement("button");
+
+        button.className = "option";
+
+        button.innerText =
+            String.fromCharCode(65 + index) + ") " + answer;
+
+        button.onclick = () => checkAnswer(index);
+
+        options.appendChild(button);
+
+    });
+
+}
+
+function checkAnswer(selected) {
+
+    if (answered) return;
+
+    answered = true;
+
+    const q = questions[current];
+
+    const buttons = document.querySelectorAll(".option");
+
+    buttons.forEach((button, index) => {
+
+        button.disabled = true;
+
+        if (index === q.correct) {
+            button.classList.add("correct");
+        }
+
+        if (index === selected && selected !== q.correct) {
+            button.classList.add("wrong");
+        }
+
+    });
+
+    const feedback = document.getElementById("feedback");
+
+    if (selected === q.correct) {
+
+        points++;
+
+        feedback.className = "feedback show good";
+
+        feedback.innerHTML =
+            "✅ <strong>Resposta correta!</strong><br>" +
+            q.explanation;
+
+    } else {
+
+        feedback.className = "feedback show bad";
+
+        feedback.innerHTML =
+            "❌ <strong>Resposta incorreta!</strong><br>" +
+            "A alternativa correta é: <strong>" +
+            q.a[q.correct] + "</strong><br><br>" +
+            q.explanation;
+
+    }
+
+    document.getElementById("next").disabled = false;
+
+    if (current === questions.length - 1) {
+
+        document.getElementById("next").innerText =
+            "Ver resultado";
+
+    }
+
+}
+
+function nextQuestion() {
+
+    if (!answered) return;
+
+    current++;
+
+    if (current < questions.length) {
+
+        document.getElementById("next").innerText =
+            "Próxima pergunta →";
+
+        loadQuestion();
+
+    } else {
+
+        showResult();
+
+    }
+
+}
+
+function showResult() {
+
+    document.getElementById("quiz").style.display = "none";
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("progress").style.width = "100%";
+
+    document.getElementById("score").innerText =
+        points + " / " + questions.length;
+
+    let message = "";
+
+    if (points >= 18) {
+
+        message = "🏆 Excelente! Você demonstrou um ótimo conhecimento sobre a Escala de Glasgow.";
+
+    } else if (points >= 14) {
+
+        message = "👏 Muito bom! Você compreendeu boa parte do conteúdo. Revise alguns pontos para melhorar ainda mais.";
+
+    } else if (points >= 10) {
+
+        message = "📚 Bom esforço! Continue estudando os componentes e as pontuações da escala.";
+
+    } else {
+
+        message = "💡 Não desanime! Revise o material e tente novamente. A prática ajuda a compreender melhor o conteúdo.";
+
+    }
+
+    document.getElementById("message").innerHTML =
+        message +
+        "<br><br>Acertos: " + points +
+        "<br>Erros: " + (questions.length - points);
+
+}
+
+function restartQuiz() {
+
+    current = 0;
+    points = 0;
+    answered = false;
+
+    document.getElementById("quiz").style.display = "block";
+
+    document.getElementById("result").style.display = "none";
+
+    loadQuestion();
+
+}
+
+loadQuestion();
+
+</script>
+
+</body>
+</html>
